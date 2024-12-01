@@ -29,14 +29,3 @@ CREATE TABLE us333rs_(
 --- Llave foránea para los roles
 ALTER TABLE us333rs_ 
 ADD CONSTRAINT FK_ro00133_s FOREIGN KEY (lo_58role) REFERENCES ro6520l_e57s(rR0__l3_id);
-
---- INSERCIÓN DE LOS ROLES
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('S123_D11_2', 'Permisos de super administrador');
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('A3_mniN', 'Perminos de administrador');
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('u_sser21_4', 'Permisos de usuario');
-
---- INSERCIÓN DE LOS USUARIOS
-INSERT INTO us333rs_ (M4m3, l4Z_TM4m3, n_ail, m3rg3nzy__3m4il, ppp3sswo_rd, _Pg_0Me, lo_58role) VALUES ('Juan', 'Avila', 'juanavila8856@gmail.com', 'juanavila886@gmail.com', 'minionculion856@', 3173853166, '171aaaea-968a-4b67-9ebd-22ffdbf6a1cf');
-
---- MUESTRA LA INFORMACIÓN DE LOS USUARIOS REGISTRADOS
-SELECT * FROM us333rs_;

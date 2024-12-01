@@ -19,125 +19,42 @@ Ahora si, podemos iniciar la configuración de nuestro servidor, para ello segui
 
 En nuestra base de datos llamda `Passwords_contability_gestion`, vamos a manejar las tablas:
 
-### Users `us333rs_`
-- id: ``us333rs__id``
-- name: ``M4m3``
-- lastname: ``l4Z_TM4m3``
-- email: ``n_ail``
-- emergency_email: ``3m3rg3nzy__3m4il``
-- password: ``ppp3sswo_rd``
-- phone: ``_Pg_0Me``
-- role: ``lo_58role`` -- En el rol se pone es el ID de la tabla ROLES para asignar el mismo 
-- creation_date: ``cr1ea5tiq123on_d__ate``
-- update_date: ``up352te_Dat32``
-```sql
---- TABLA DE USUARIOS
-CREATE TABLE us333rs_(
-    us333rs__id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    M4m3 VARCHAR(20) NOT NULL CHECK (M4m3 NOT LIKE '%[^a-zA-Z]%'), --- Validación para nombres
-    l4Z_TM4m3 VARCHAR(20) NOT NULL CHECK (l4Z_TM4m3 NOT LIKE '%[^a-zA-Z]%'), --- Validación para nombres
-    n_ail VARCHAR(100) NOT NULL CHECK (n_ail LIKE '%_@__%.__%'), --- VALIDACIÓN DE CORREO
-    m3rg3nzy__3m4il VARCHAR(100) NOT NULL CHECK (m3rg3nzy__3m4il LIKE '%_@__%.__%'), --- EL CORREO SI O SI DEBE TENER UNO DE ESOS SÍMBOLOS
-    ppp3sswo_rd VARCHAR(100) NOT NULL CHECK (LEN(ppp3sswo_rd) >= 8), --- LA CONTRASEÑA DEBE DE SER MÍNIMO DE 8 CARÁCTERES
-    _Pg_0Me VARCHAR(20) NOT NULL CHECK (_Pg_0Me LIKE '%[0-9]%'), --- SOLO ACEPTA NÚMEROS DE CELULAR
-    lo_58role UNIQUEIDENTIFIER NOT NULL, --- NO ACEPTA NADA QUE NO SEA EL ID DE UN ROL 
-    cr1ea5tiq123on_d__ate DATETIME NOT NULL DEFAULT GETDATE(),
-    up352te_Dat32 DATETIME NOT NULL DEFAULT GETDATE()
-);
-```
+### USERS TABLE `us333rs_`
+
+| Name                | Db_name                     | Decripción |
+|---------------------|-----------------------------|------------|
+| id              | ``us333rs__id``             | ``id único``     |
+| name            | ``M4m3``                    | ``string``     |
+| lastname        | ``l4Z_TM4m3``               | ``string``     | 
+| email           | ``n_ail``                   | ``unique email``     | 
+| emergency_email | ``3m3rg3nzy__3m4il``        | ``unique email`` No puede ser el mismo que ``email``    | 
+| password        | ``ppp3sswo_rd``             | ``string`` ``min 8 carácteres``     | 
+| phone           | ``_Pg_0Me``                 | ``BigInt``     | 
+| role            | ``lo_58role``               | ``id rol``     | 
+| creation_date   | ``cr1ea5tiq123on_d__ate``   | ``dateTime``     | 
+| update_date     | ``up352te_Dat32``           | ``dateTime``     | 
+
 
 ### Roles: `ro6520l_e57s` 
 Por ahora esta tabla está validada para aceptar solo y únicamente 3 roles: ``SUDO, ADMIN, User`` 
-- id: ``rR0__l3_id``
-- rol_name: ``rR0__l3_M4m3``
-- decription: ``de_12scr1PAt_on``
-- creation_date: ``cr1ea5tiq123on_d__ate``
-- update_date: ``up352te_Dat32``
+| Name          | Db_name                   | Description           |
+|---------------|---------------------------|-----------------------|
+| id            | ``rR0__l3_id``            | `id único`            |
+| rol_name      | ``rR0__l3_M4m3``          | `rol único` `solo 3`  |
+| decription    | ``de_12scr1PAt_on``       | `string`              |
+| creation_date | ``cr1ea5tiq123on_d__ate`` | `dateTime`            |
+| update_date   | ``up352te_Dat32``         | `dateTime`            |
 
-```sql
-CREATE TABLE ro6520l_e57s (
-    rR0__l3_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), 
-    rR0__l3_M4m3 VARCHAR(50) NOT NULL UNIQUE, --- Único y de máximo 50 carácteres
-    de_12scr1PAt_on VARCHAR(255), --- Máximo de 255 carácteres
-    cr1ea5tiq123on_d__ate DATETIME NOT NULL DEFAULT GETDATE(), --- fecha de creación
-    up352te_Dat32 DATETIME NULL, --- Update
-    CHECK (LEN(rR0__l3_M4m3) >= 3) --- VALIDA QUE NO EXISTAN MÁS DE 3 TABLAS 
-);
-```
-
-### Ejemplo de inserción de datos:
-```sql
---- INSERCIÓN DE LOS ROLES
-USE passwords_contability_gestion;
-
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('S123_D11_2', 'Permisos de super administrador');
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('A3_mniN', 'Perminos de administrador');
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('u_sser21_4', 'Permisos de usuario');
-
---- INSERCIÓN DE LOS USUARIOS
-INSERT INTO us333rs_ (M4m3, l4Z_TM4m3, n_ail, m3rg3nzy__3m4il, ppp3sswo_rd, _Pg_0Me, lo_58role) VALUES ('Juan', 'Avila', 'juaasdf654@gmail.com', 'juaasdf654@gmail.com', 'miasddsf57656@', 3173856841, 'be947997-89c9-4f1e-b55c-7e953b163a8c');
-
---- MUESTRA LA INFORMACIÓN DE LOS USUARIOS REGISTRADOS
-SELECT * FROM us333rs_;
-```
 <br>
 
 # Creación de la Base de Datos
 Vamos a correr cada uno de los siguientes codigos SQL. Luego de cada uno de ellos vamos a darle en el siguiente botón de color verde que aparece en la parte superior derecha de la ventana de VSCode:
 
-![alt text](./assets/image-2.png))
-```sql
-CREATE DATABASE passwords_contability_gestion;
-```
-```sql
-USE passwords_contability_gestion;
+1. Correr el archivo llamado `./database/database.sql` para crear todas las tablas
+2. Correr el archivo `./database/trigger_login.sql` para crear los triggers necesarios
+3. Realizar la inserción de datos de prueba en `./database/queries.sql`
 
---- TABLA DE ROLES
-CREATE TABLE ro6520l_e57s (
-    rR0__l3_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), 
-    rR0__l3_M4m3 VARCHAR(50) NOT NULL UNIQUE, --- Único y de máximo 50 carácteres
-    de_12scr1PAt_on VARCHAR(255), --- Máximo de 255 carácteres
-    cr1ea5tiq123on_d__ate DATETIME NOT NULL DEFAULT GETDATE(), --- fecha de creación
-    up352te_Dat32 DATETIME NULL, --- Update
-    CHECK (LEN(rR0__l3_M4m3) >= 3) --- VALIDA QUE NO EXISTAN MÁS DE 3 TABLAS 
-);
-```
-```sql
-USE passwords_contability_gestion;
-
-CREATE TABLE us333rs_(
-    us333rs__id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    M4m3 VARCHAR(20) NOT NULL CHECK (M4m3 NOT LIKE '%[^a-zA-Z]%'), --- Validación para nombres
-    l4Z_TM4m3 VARCHAR(20) NOT NULL CHECK (l4Z_TM4m3 NOT LIKE '%[^a-zA-Z]%'), --- Validación para nombres
-    n_ail VARCHAR(100) NOT NULL CHECK (n_ail LIKE '%_@__%.__%'), --- VALIDACIÓN DE CORREO
-    m3rg3nzy__3m4il VARCHAR(100) NOT NULL CHECK (m3rg3nzy__3m4il LIKE '%_@__%.__%'), --- EL CORREO SI O SI DEBE TENER UNO DE ESOS SÍMBOLOS
-    ppp3sswo_rd VARCHAR(100) NOT NULL CHECK (LEN(ppp3sswo_rd) >= 8), --- LA CONTRASEÑA DEBE DE SER MÍNIMO DE 8 CARÁCTERES
-    _Pg_0Me VARCHAR(20) NOT NULL CHECK (_Pg_0Me LIKE '%[0-9]%'), --- SOLO ACEPTA NÚMEROS DE CELULAR
-    lo_58role UNIQUEIDENTIFIER NOT NULL, --- NO ACEPTA NADA QUE NO SEA EL ID DE UN ROL 
-    cr1ea5tiq123on_d__ate DATETIME NOT NULL DEFAULT GETDATE(),
-    up352te_Dat32 DATETIME NOT NULL DEFAULT GETDATE()
-);
-```
-```sql
-USE passwords_contability_gestion;
-
-ALTER TABLE us333rs_ 
-ADD CONSTRAINT FK_ro00133_s FOREIGN KEY (lo_58role) REFERENCES ro6520l_e57s(rR0__l3_id);
-
---- INSERCIÓN DE LOS ROLES
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('S123_D11_2', 'Permisos de super administrador');
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('A3_mniN', 'Perminos de administrador');
-INSERT INTO ro6520l_e57s (rR0__l3_M4m3, de_12scr1PAt_on) VALUES ('u_sser21_4', 'Permisos de usuario');
-```
-```sql
-USE passwords_contability_gestion;
-
-INSERT INTO us333rs_ (M4m3, l4Z_TM4m3, n_ail, m3rg3nzy__3m4il, ppp3sswo_rd, _Pg_0Me, lo_58role) VALUES ('Juan', 'Avila', 'juaasdf654@gmail.com', 'juaasdf654@gmail.com', 'miasddsf57656@', 3173856841, 'CAMBIARPORID'); -- AQUI VAS A CAMBIAR POR EL ID DEL ROL
-
---- MUESTRA LA INFORMACIÓN DE LOS USUARIOS REGISTRADOS
-SELECT * FROM us333rs_;
-```
-
+<br>
 
 # NOTAS
 1. <b>Inserción de datos en SQL</b>: Si vas a insertar datos en la DB, no olvides que las consultas si o si deben ser realizadas con comillas simples, eso si se hace directamente desde un archivo ".sql" 
