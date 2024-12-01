@@ -5,11 +5,10 @@ import {
     rol_fileds, 
     roles, 
     user_fileds, 
-    // rol_fileds,
-    // roles
 } from "../utils/util";
 
 
+// QUERY DE BÚSUQEDA DE USUARIOS
 // TRAER A TODOS LOS USUARIOS PAGINADOS Y ORDENADOS POR FECHA
 export const get_users = async (req: any, res: any) => {
     try {
@@ -19,7 +18,13 @@ export const get_users = async (req: any, res: any) => {
         const limitValue = parseInt(limit, 10) || 10;  // Si no es un número, usar 10
 
         console.log(roles);
+
+// EJEMPLO: 
+// ID: 6BD9698B-75E2-496F-923C-9EDC4A1E696F
+// rol: 171AAAEA-968A-4B67-9EBD-22FFDBF6A1CF
         
+
+        // PUBLICA EL RESULTADO
         const result = await pool?.request().query(`
             SELECT 
                 ${user_fileds.user_id} AS id,
@@ -53,24 +58,54 @@ export const get_users = async (req: any, res: any) => {
     }
 };
 
-// export const get_user = async (req:any, res:any) => {
-//     try {
-//         const pool = await get_connection();
-//         const { id, rol, email, phone, skip, limit } = req.query;
+export const login_user = async (req:any, res:any) => {
+    try {
+        const pool = await get_connection();
+        const { email, password } = req.body;
+        const result = await pool?.request().query(`
+            SELECT
+            CASE 
+                WHEN NOT EXISTS (
+                    SELECT 1 
+                    FROM ${db_tables.users} 
+                    WHERE ${user_fileds.email} = '${email}'
+                    AND ${user_fileds.password} = '${password}'
+                )
+                THEN 'Credenciales incorrectas'
+                ELSE (
+                    SELECT 
+                        CASE 
+                            WHEN r.${rol_fileds.rol_name} = '${roles[0]}' THEN 'SUDO'
+                            WHEN r.${rol_fileds.rol_name} = '${roles[1]}' THEN 'ADMIN'
+                            WHEN r.${rol_fileds.rol_name} = '${roles[2]}' THEN 'USER'
+                            ELSE 'UNKNOWN'
+                        END AS role
+                    FROM 
+                    ${db_tables.users} u
+                LEFT JOIN 
+                    ${db_tables.roles} r
+                ON 
+                    u.${user_fileds.role} = r.${rol_fileds.rol_id}
+                WHERE 
+                    u.${user_fileds.email} = '${email}' AND u.${user_fileds.password} = '${password}'
+                )
+            END AS Resultado;
+    `)
 
-//         const result = undefined;
+    if (result?.recordset[0].Resultado === "Credenciales incorrectas") {
+        return res.status(404).json("Credenciales Incorrectas")
+    } 
 
-//         if (id) {
-//             const result = await pool?.request().query(`SELECT ${user_fileds.id} from ${db_tables.users}`)    
-//         }
+    return res.json("Accept")
 
-        
+    } catch (error: any) {
+        res.status(500).json({
+            status: 500,
+            message: error.message, // QUEDA PENDIENTE HACER EL ARCHIVO DE LOS ERRORES
+        });
+    }
+}
 
-//         const result = await pool?.request().query(`SELECT `)
-//     } catch (error: any) {
-        
-//     }
-// }
 
 export const post_new_user = async (req: any, res: any) => {
     try {
