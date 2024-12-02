@@ -13,18 +13,41 @@ import {
 export const get_users = async (req: any, res: any) => {
     try {
         const pool = await get_connection();
-        const {skip, limit} = req.query;
+        const { skip, limit, email } = req.query;
         const skipValue = parseInt(skip, 10) || 0;  // Si no es un número, usar 0
         const limitValue = parseInt(limit, 10) || 10;  // Si no es un número, usar 10
-
-        console.log(roles);
-
-// EJEMPLO: 
-// ID: 6BD9698B-75E2-496F-923C-9EDC4A1E696F
-// rol: 171AAAEA-968A-4B67-9EBD-22FFDBF6A1CF
         
+        const found_user = await pool?.request().query(`
+            SELECT 
+                CASE 
+                    WHEN NOT EXISTS (
+                        SELECT 1 
+                        FROM ${db_tables.users}
+                        WHERE n_ail = '${email}'
+                    )
+                    THEN 'Credenciales incorrectas'        
+                    ELSE (
+                        SELECT 
+                            CASE
+                                WHEN r.${rol_fileds.rol_name} = '${roles[0]}' THEN 'SUDO'
+                                WHEN r.${rol_fileds.rol_name} = '${roles[1]}' THEN 'ADMIN'
+                                WHEN r.${rol_fileds.rol_name} = '${roles[2]}' THEN 'USER'
+                                ELSE 'UNKNOWN'
+                            END AS role
+                        FROM ${db_tables.roles} r
+                        WHERE u.${user_fileds.role} = r.${rol_fileds.rol_id}
+                    )
+                END AS role
+            FROM 
+                ${db_tables.users} u
+            WHERE 
+                u.${user_fileds.email} = '${email}';
+            `);
 
-        // PUBLICA EL RESULTADO
+        console.log(typeof(found_user?.recordset[0].role));
+
+        if (typeof(found_user?.recordset[0].role) != "string") return res.status(400).json({rol: "UNKOWN"})
+        
         const result = await pool?.request().query(`
             SELECT 
                 ${user_fileds.user_id} AS id,
@@ -48,7 +71,7 @@ export const get_users = async (req: any, res: any) => {
             OFFSET ${skipValue} ROWS
             FETCH NEXT ${limitValue} ROWS ONLY;
         `);
-        res.json(result?.recordset)
+        res.json(result)
 
     } catch (error:any) {
         res.status(500).json({
