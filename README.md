@@ -48,11 +48,16 @@ Por ahora esta tabla está validada para aceptar solo y únicamente 3 roles: ``S
 <br>
 
 # Creación de la Base de Datos
-Vamos a correr cada uno de los siguientes codigos SQL. Luego de cada uno de ellos vamos a darle en el siguiente botón de color verde que aparece en la parte superior derecha de la ventana de VSCode:
+Vamos a correr cada uno de los siguientes codigos SQL. Luego de cada uno de ellos vamos a darle en el siguiente botón de color verde que aparece en la parte superior derecha de la ventana de VSCode.
 
-1. Correr el archivo llamado `./database/database.sql` para crear todas las tablas
-2. Correr el archivo `./database/trigger_login.sql` para crear los triggers necesarios
-3. Realizar la inserción de datos de prueba en `./database/queries.sql`
+Vamos a copiar cada contenido de cada archivo explicado en cada paso y lo vamos a correr con la extenseión de `SQL SERVER`:
+
+
+1. Ir al archivo `./database/database.sql` copiar y correr la primera línea.
+2. Ahora puedes copiar el codigo de dicho archivo(`./database/database.sql`) para crear todas las tablas
+3. Correr el archivo `./database/trigger_login.sql` para crear los triggers necesarios
+
+Listo, con esto ya tenemos la base de datos creada, ahora si quieres puedes hacer pruebas con las `Query's` en el archivo `./database/queries.sql`
 
 <br>
 
