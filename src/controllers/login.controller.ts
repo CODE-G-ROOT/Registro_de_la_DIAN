@@ -104,34 +104,65 @@ export const login_user = async (req:any, res:any) => {
             message: error.message, // QUEDA PENDIENTE HACER EL ARCHIVO DE LOS ERRORES
         });
     }
-}
-
+};
 
 export const post_new_user = async (req: any, res: any) => {
     try {
         const pool = await get_connection();
-        const {name, lastname, email, email_r, password, phone, id_role } = req.body;
 
+    /* POR AHORA VAMOS A DEJAR QUE EL REGISTRO LO PUEDA HACER EL MISMO USUARIO
+        PERO POR DEFECTO VA A TENER UN ROL DE USUARIO ASIGNADO A MENOS QUE EL SUDO LO CAMBIE
+    */
+
+        // Busca el id del rol 'usuario'
+        const {name, lastname, email, email_r, password, phone} = req.body;
+
+        const rol_user_id = await pool?.request().query(`
+            SELECT ${rol_fileds.rol_id} FROM ${db_tables.roles} 
+            WHERE ${rol_fileds.rol_name} = '${roles[2]}'
+        `);
+
+        // Realiza la solicitud para insertar el usuario con su rol en la DB
         const result = await pool?.request()
             .input("name", sql.VarChar, name)
             .input("lastname", sql.VarChar, lastname)
             .input("email", sql.VarChar, email)
             .input("email_r", sql.VarChar, email_r)
             .input("password", sql.VarChar, password)
-            .input("phone", sql.BigInt, phone) // Cambié a VARCHAR si usas `_Pg_0Me` como VARCHAR
-            .input("id_role", sql.UniqueIdentifier, id_role)
+            .input("phone", sql.BigInt, phone) // 
+            .input("rol_id", sql.UniqueIdentifier, Object.values(rol_user_id?.recordset[0])[0]) // Desestrucutura e implementa el id del rol
             .query(`
-                INSERT INTO ${db_tables.users} (${user_fileds.name}, ${user_fileds.lastname}, ${user_fileds.email}, ${user_fileds.resource_email}, ${user_fileds.password}, ${user_fileds.phone}, ${user_fileds.role}) VALUES (@name, @lastname, @email, @email_r, @password, @phone, @id_role)
-            `);
+                INSERT INTO ${db_tables.users} (   
+                    ${user_fileds.name}, 
+                    ${user_fileds.lastname}, 
+                    ${user_fileds.email}, 
+                    ${user_fileds.resource_email}, 
+                    ${user_fileds.password}, 
+                    ${user_fileds.phone}, 
+                    ${user_fileds.role}
+                ) 
+                VALUES (@name, @lastname, @email, @email_r, @password, @phone, @rol_id)
+            `); 
 
-        res.send(result)
+        //? EN LA BASE DE DATOS EL ROL POR DEFECTO ES EL DE USUARIOS
+        console.log({result: result});
+
+        (result?.rowsAffected) 
+            ? res.json("accept") 
+            : res.json("Alguno de los campos está mal")
                 
     } catch (error: any) {
-        //TODO: TOCA VALIDAR ESTO PARA QUE SALGAN LOS ERRORES, SIN EMABRGO QUE NO SE IMPRINA NADA DE LA BASE DE DATOS
-        res.status(500).json({
-            status: 500,
-            message: "Ha ocurrido un error en el servidor",
-        });
+        console.log(error.message);
+
+        switch (true) {
+            case error.message.includes("trigger"):
+                return res.status(400).json({ error: error.message });
+            case error.message.includes("UNIQUE KEY"):
+                return res.status(400).json({ error:  error.message.match(/The duplicate key.+/)[0] });
+            default:
+                return res.status(500).json({ error: "Ha ocurrido un error en el servidor" });
+        }
+        
     }
 };
 
