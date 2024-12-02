@@ -1,3 +1,5 @@
+USE passwords_contability_gestion;
+GO
 CREATE TRIGGER trg_CheckEmails
 ON us333rs_
 INSTEAD OF INSERT
@@ -42,3 +44,4 @@ BEGIN
         up352te_Dat32
     FROM INSERTED;
 END;
+GO
