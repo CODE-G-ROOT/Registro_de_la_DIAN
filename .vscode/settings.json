@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "DOC",
-        "Middlewares"
+        "Middlewares",
+        "CONSTRUCCIÓN"
     ]
 }
