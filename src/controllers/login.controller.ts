@@ -147,6 +147,9 @@ export const post_new_user = async (req: any, res: any) => {
             WHERE ${rol_fileds.rol_name} = '${roles[2]}'
         `);
 
+        // console.log();
+        
+
         // Realiza la solicitud para insertar el usuario con su rol en la DB
         const result = await pool?.request()
             .input("name", sql.VarChar, name)
@@ -155,7 +158,7 @@ export const post_new_user = async (req: any, res: any) => {
             .input("email_r", sql.VarChar, email_r)
             .input("password", sql.VarChar, password)
             .input("phone", sql.BigInt, phone) // 
-            .input("rol_id", sql.UniqueIdentifier, rol_user_id?.recordset[0].rR0__l3_id) // Desestrucutura e implementa el id del rol
+            .input("rol_id", sql.UniqueIdentifier, Object.values(rol_user_id?.recordset[0])[0]) // Desestrucutura e implementa el id del rol
             .query(`
                 INSERT INTO ${db_tables.users} (   
                     ${user_fileds.name}, 
@@ -170,7 +173,7 @@ export const post_new_user = async (req: any, res: any) => {
             `); 
 
         //? EN LA BASE DE DATOS EL ROL POR DEFECTO ES EL DE USUARIOS
-        console.log({result: result});
+        // console.log({result: result});
 
         (result?.rowsAffected) 
             ? res.json("accept") 
@@ -264,7 +267,7 @@ export const update_role = async (req: any, res: any) => {
         // `)
 
         if (validar_usertochange_exist?.rowsAffected[0] != 1) return res.status(404).json("user not found")
-            
+
         return res.json("ok")
 
     } catch (error: any) {
