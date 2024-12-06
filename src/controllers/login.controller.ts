@@ -4,7 +4,8 @@ import {
     db_tables, 
     rol_fileds, 
     roles, 
-    user_fileds, 
+    user_fileds,
+    id_roles
 } from "../utils/util";
 
 
@@ -44,9 +45,10 @@ export const get_users = async (req: any, res: any) => {
                 u.${user_fileds.email} = '${email}';
             `);
 
-        console.log(typeof(found_user?.recordset[0].role));
+        console.log(found_user?.recordset[0].role);
 
         if (typeof(found_user?.recordset[0].role) != "string") return res.status(400).json({rol: "UNKOWN"})
+        if (found_user?.recordset[0].role != "SUDO") return res.status(203).json({motive: "Not access"})
         
         const result = await pool?.request().query(`
             SELECT 
@@ -190,3 +192,87 @@ export const post_new_user = async (req: any, res: any) => {
 };
 
 
+
+
+export const update_role = async (req: any, res: any) => {
+    try {
+        // const {name, lastname, email, email_to_change_, email_reourse, password, phone, role}
+        // const { email, password, email_to_chage_role } = req.body;
+        const { email, email_to_chage_role } = req.body;
+
+        const pool = await get_connection();
+
+        // VALIDA EL ROL  - SI ES SUDO 
+        const query_validate_rol_user = `
+            SELECT 
+                CASE 
+                    WHEN NOT EXISTS (
+                        SELECT 1 
+                        FROM ${db_tables.users}
+                        WHERE n_ail = '${email}'
+                    )
+                    THEN 'Credenciales incorrectas'        
+                    ELSE (
+                        SELECT 
+                            CASE
+                                WHEN r.${rol_fileds.rol_name} = '${roles[0]}' THEN 'SUDO'
+                                WHEN r.${rol_fileds.rol_name} = '${roles[1]}' THEN 'ADMIN'
+                                WHEN r.${rol_fileds.rol_name} = '${roles[2]}' THEN 'USER'
+                                ELSE 'UNKNOWN'
+                            END AS role
+                        FROM ${db_tables.roles} r
+                        WHERE 
+                            u.${user_fileds.role} = r.${rol_fileds.rol_id}
+                    )
+                END AS role
+            FROM 
+                ${db_tables.users} u
+            WHERE 
+                u.${user_fileds.email} = '${email}'`;
+        
+        const query_validate:any = await pool?.request().query(query_validate_rol_user)
+
+        if (query_validate.recordset[0].role != "SUDO") return res.status(203).json("Not access")
+
+        // return res.json("ok")
+
+        //? ACTUALIZA A ADMIN
+        // const validar_usertochange_exist = await pool?.request().query(`
+        //     UPDATE ${db_tables.users} 
+        //         SET 
+        //             ${user_fileds.role} = '${id_roles[0]}' 
+        //         WHERE 
+        //             ${user_fileds.email} = '${email_to_chage_role}'
+        // `)
+
+        //? Actualiza a SUDO
+        const validar_usertochange_exist = await pool?.request().query(`
+            UPDATE ${db_tables.users} 
+                SET 
+                    ${user_fileds.role} = '${id_roles[1]}' 
+                WHERE 
+                    ${user_fileds.email} = '${email_to_chage_role}'
+        `)
+
+        //? Actualiza a USER
+        // const validar_usertochange_exist = await pool?.request().query(`
+        //     UPDATE ${db_tables.users} 
+        //         SET 
+        //             ${user_fileds.role} = '${id_roles[1]}' 
+        //         WHERE 
+        //             ${user_fileds.email} = '${email_to_chage_role}'
+        // `)
+
+        if (validar_usertochange_exist?.rowsAffected[0] != 1) return res.status(404).json("user not found")
+            
+        return res.json("ok")
+
+    } catch (error: any) {
+        console.log(error.message);
+        
+        res.status(500).json({
+            status: 500,
+            message: error.message, // QUEDA PENDIENTE HACER EL ARCHIVO DE LOS ERRORES
+        });
+    }
+}
